@@ -1,0 +1,99 @@
+
+#include p18f4550.inc                ; Include register definition file
+CBLOCK 0X20
+  KID
+  TEEN
+  YOUNG
+  CHAVORRUCO
+  SENIOR
+  BOSS
+  VALOR
+  RESULTADO
+ENDC
+
+    ORG	0X00; DIRECCION 0
+    GOTO CONF
+    CONF
+     CLRF	TRISD; PUERTO D -> SALIDA
+     ; PUERTO B A ENTRADA
+     MOVLW	0XFF
+     MOVWF	TRISB  
+     ; TODOS PINES A DIGITALES
+     MOVLW	0X0F
+     MOVWF	ADCON1
+     CLRF LATD
+     CLRF LATB
+     
+     ; CONFIGURAR EDADES
+     MOVLW .10
+     MOVWF KID
+     MOVLW .19
+     MOVWF TEEN
+     MOVLW .31
+     MOVWF YOUNG
+     MOVLW .48
+     MOVWF CHAVORRUCO
+     MOVLW .60
+     MOVWF SENIOR
+     MOVLW .101
+     MOVWF BOSS
+     
+     INICIO
+    ;LEER DEL PUERTO B
+     MOVF PORTB, W
+     ADDWF VALOR, F
+     MOVWF VALOR
+     CPFSGT KID
+     BRA IS_TEEN ; Es mayor > 9
+     BRA IS_KID	; Es menor <= 9
+     
+     IS_KID
+     CLRF LATD
+     BSF PORTD, 0
+     GOTO INICIO
+     
+     IS_TEEN
+     CPFSGT TEEN
+     BRA IS_YOUNG ; Es > 18
+     ; Es <= 18
+     CLRF LATD	  
+     BSF PORTD, 1
+     GOTO INICIO
+     
+     IS_YOUNG
+     CPFSGT YOUNG
+     BRA IS_CHAVORRUCO ; Es > 30
+     ; Es <= 30
+     CLRF LATD	  
+     BSF PORTD, 2
+     GOTO INICIO
+     
+     IS_CHAVORRUCO
+     CPFSGT CHAVORRUCO
+     BRA IS_SENIOR ; Es > 47
+     ; Es <= 47
+     CLRF LATD	  
+     BSF PORTD, 3
+     GOTO INICIO 
+ 
+     IS_SENIOR
+     CPFSGT SENIOR 
+     BRA IS_BOSS ; Es > 59
+     ; Es <= 59
+     CLRF LATD
+     BSF PORTD, 4
+     GOTO INICIO
+     
+     IS_BOSS
+     CPFSGT BOSS
+     BRA MAXIMO ; Es > 100
+     ;Es <= 100
+     CLRF LATD
+     BSF PORTD, 5
+     GOTO INICIO
+     
+     ; INPUT > 100
+     MAXIMO
+     COMF LATD
+     GOTO INICIO
+END
