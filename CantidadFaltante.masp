@@ -1,0 +1,59 @@
+;====================================================================
+; 		MICROCONTROLADORES
+;	UNIVERSIDAD AUTÓNOMA DE GUERRERO
+;	Andrea Monserrat Tomas Acosta
+; Created:   Sat Feb 18 2023
+; Processor: PIC18F4550
+; Compiler:  MPASM (Proteus)
+;====================================================================
+;====================================================================
+; 
+;====================================================================
+
+#include p18f4550.inc                ; Include register definition file
+   CBLOCK 0X00
+     VALOR	; Variable para guardar inputs
+     NUMERO
+   ENDC
+
+   ORG	0; DIRECCION 0
+   GOTO INICIO
+   INICIO
+      CLRF TRISD;	; PUERTO D SALIDA
+      CLRF TRISC;	; PUERTO C SALIDA
+      MOVLW 0XFF
+      MOVWF TRISB;	; PUERTO B ENTRADA
+      MOVLW 0X0F
+      MOVWF ADCON1	; PUERTOS A DIGITALES
+      CLRF LATD
+      CLRF LATB
+      CLRF LATC
+      MOVLW .100
+      MOVWF NUMERO
+      
+   START
+    ;LEER DEL PUERTO B
+     MOVLW .100		; W = 100
+     MOVWF VALOR     	; VALOR = 100
+     ; LEER DATOS DEL USUARIO
+     MOVF PORTB, W
+     CPFSGT NUMERO	; INPUT > 100?
+     BRA OVERFLOW	; INPUT > 100
+     BRA OPERACION	; INPUT < 100
+     
+     OPERACION
+     SUBWF VALOR, 1
+     BTFSS STATUS, C
+     GOTO NEXT
+     BCF LATC, 0
+     
+     NEXT		; MOSTRAR VALORES EN PUERTO D
+	MOVF VALOR, W
+	MOVWF LATD
+	GOTO START
+     
+     OVERFLOW
+	 BSF PORTC, 0	; ENCENDER LED ROJO
+	 CLRF LATD	; LIMPIAR PUERTO D
+     GOTO START
+   END
