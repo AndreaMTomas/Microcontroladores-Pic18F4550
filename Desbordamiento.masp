@@ -1,0 +1,43 @@
+#include p18f4550.inc   
+CBLOCK 0X20
+   VALOR
+ENDC
+
+   ORG 0
+   
+      ;CONF DE PUERTOS
+      CLRF TRISD;
+      CLRF TRISA;
+      MOVLW 0XFF
+      MOVWF TRISB
+      MOVLW 0X0F
+      MOVWF ADCON1
+      CLRF LATB
+      CLRF LATD   
+      CLRF LATA
+   
+     LEER
+     MOVF PORTB, W
+     ADDWF VALOR, F
+     MOVWF VALOR
+     
+     LOOP
+     MOVLW .255
+     CPFSEQ VALOR
+     BRA INCREMENT
+     BRA STOP
+     
+     INCREMENT
+     COMF LATD
+     INCF VALOR
+     MOVF VALOR, W
+     ADDWF VALOR, F
+     MOVWF VALOR
+     GOTO LOOP
+     
+     STOP
+     CLRF PORTD
+     BSF PORTA, 0
+     GOTO LOOP
+
+END
