@@ -1,7 +1,6 @@
 #include p18f4550.inc                ; Include register definition file
    CBLOCK 0X20
       VAR
-      RESULTADO
    ENDC
  
    ORG	0X00; DIRECCION 0
@@ -15,7 +14,6 @@
    ; TODOS PINES A DIGITALES
    MOVLW	0X0F
    MOVWF	ADCON1
-   CLRF RESULTADO
    CLRF LATD
    CLRF LATB
 
