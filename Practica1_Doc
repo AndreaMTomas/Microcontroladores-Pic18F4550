@@ -1,0 +1,52 @@
+#include "p18f4550.inc"
+   CBLOCK 0X20
+      VAR
+   ENDC
+ 
+   ORG	0X00; DIRECCION 0
+   GOTO CONF
+
+CONF
+   CLRF	TRISD; PUERTO D -> SALIDA
+   ; PUERTO B A ENTRADA
+   MOVLW 0XFF
+   MOVWF TRISB  
+   MOVWF TRISC
+   ; TODOS PINES A DIGITALES
+   MOVLW 0X0F
+   MOVWF ADCON1
+   CLRF LATD
+   CLRF LATB
+
+INICIO
+     	MOVF PORTB, 0
+	;MOVLW	.50
+	MOVWF VAR	; GUARDARLO EN VAR
+	
+PREGUNTAR
+     	MOVF PORTC, W
+	BTFSC PORTC, 0
+	BRA PREGUNTAR
+DESPRESS
+	BTFSS PORTC, 0
+	BRA DESPRESS
+	BRA DECREMENTAR
+	
+	; Bandera Z = 0 bits, se pone en 1 si la operacion aritmetica es 0
+	; Bandera C = Bit del acarreo. Si existe un acarreo (se desborda) este bit se activa
+	; BTFSS STATUS, Z (SI Z ES 1)
+	; BTFSC STATUS, Z (SI Z ES 0)
+	
+DECREMENTAR
+	MOVF VAR, 0
+	MOVWF PORTD
+	MOVLW .1
+	SUBWF VAR, 1
+	BTFSC STATUS, C	; HUBO ACARREO?
+	BRA PREGUNTAR
+fin	
+	MOVLW 0XF0
+	MOVWF PORTD
+	goto fin
+	
+END
